@@ -1,3 +1,36 @@
+;;; inf-ruby-bond.el --- Bond autocompletion support for inf-ruby
+
+;; Copyright (C) 2010 Kyle Hargraves
+;;
+;; Authors: Kyle Hargraves <pd@krh.me>
+;; URL: http://github.com/pd/inf-ruby-bond
+;; Version: 1.0
+
+;; This file is not part of GNU Emacs.
+
+;;; Installation:
+
+;; Add this file to your load-path. (require 'inf-ruby-bond)
+
+;;; License:
+
+;; This program is free software; you can redistribute it and/or
+;; modify it under the terms of the GNU General Public License
+;; as published by the Free Software Foundation; either version 3
+;; of the License, or (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with GNU Emacs; see the file COPYING.  If not, write to the
+;; Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+;; Boston, MA 02110-1301, USA.
+
+;;; Code:
+
 (defun inf-ruby-bond--escape (s)
   "Escapes a string such that it will be acceptable within a single-quoted ruby string"
   (replace-regexp-in-string "'" "\\'" (or s "") nil 'literal))
