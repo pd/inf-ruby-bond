@@ -2,6 +2,19 @@
   "Escapes a string such that it will be acceptable within a single-quoted ruby string"
   (replace-regexp-in-string "'" "\\'" (or s "") nil 'literal))
 
+(defvar inf-ruby-bond--ruby-word-break-chars
+  " \t\n\"\'`><;|&{(")
+
+(defun inf-ruby-bond--bounds-of-ruby-word-at-point ()
+  (save-excursion
+    (let ((end (point)))
+      (skip-chars-backward (concat "^" inf-ruby-bond--ruby-word-break-chars))
+      (list (point) end))))
+
+(defun inf-ruby-bond--ruby-word-at-point ()
+  (let ((bounds (inf-ruby-bond--bounds-of-ruby-word-at-point)))
+    (buffer-substring (car bounds) (cadr bounds))))
+
 (defun inf-ruby-bond-completions (word line)
   "Returns a list of bond's completions for WORD in the full line LINE.
 
@@ -26,19 +39,20 @@ Replaces inf-ruby-completions."
 `indent-for-tab-command' if no completion is available.  Relies
 on Bond completion having been loaded and started, typically
 from irbrc:
-  require 'bond'
-  Bond.start"
-  (interactive (list (let* ((word (thing-at-point 'word))
+    require 'bond'
+    Bond.start"
+  (interactive (list (let* ((word (inf-ruby-bond--ruby-word-at-point))
                             (line (thing-at-point 'line))
                             (completions (inf-ruby-bond-completions word line)))
                        (case (length completions)
                          (0 nil)
                          (1 (car completions))
-                         (t (completing-read "possible completions: " completions nil 'confirm-only line))))))
+                         (t (completing-read "possible completions: "
+                                             completions nil 'confirm-only word))))))
   (if (not command)
       (call-interactively 'indent-for-tab-command)
-    (move-beginning-of-line 1)
-    (kill-line 1)
+    (let ((wbounds (inf-ruby-bond--bounds-of-ruby-word-at-point)))
+      (kill-region (car wbounds) (cadr wbounds)))
     (insert command)))
 
 (eval-after-load 'inf-ruby
