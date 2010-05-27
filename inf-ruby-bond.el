@@ -1,16 +1,22 @@
 ;;; inf-ruby-bond.el --- Bond autocompletion support for inf-ruby
 
 ;; Copyright (C) 2010 Kyle Hargraves
-;;
+
 ;; Authors: Kyle Hargraves <pd@krh.me>
 ;; URL: http://github.com/pd/inf-ruby-bond
+;; Created: May 11 2010
+;; Keywords: languages ruby
 ;; Version: 1.0
 
-;; This file is not part of GNU Emacs.
+;; This file is NOT part of GNU Emacs.
 
 ;;; Installation:
 
 ;; Add this file to your load-path. (require 'inf-ruby-bond)
+;; If not yet present, start Bond in your irbrc:
+;;
+;;   require 'bond'
+;;   Bond.start
 
 ;;; License:
 
@@ -67,6 +73,7 @@ Replaces inf-ruby-completions."
     (set-process-filter proc comint-filt)
     completions))
 
+;;;###autoload
 (defun inf-ruby-bond-complete-or-tab (&optional command)
   "Either complete the ruby code at point or call
 `indent-for-tab-command' if no completion is available.  Relies
@@ -88,7 +95,9 @@ from irbrc:
       (kill-region (car wbounds) (cadr wbounds)))
     (insert command)))
 
+;;;###autoload
 (eval-after-load 'inf-ruby
   '(define-key inf-ruby-mode-map (kbd "TAB") 'inf-ruby-bond-complete-or-tab))
 
 (provide 'inf-ruby-bond)
+;;; inf-ruby-bond.el ends here
