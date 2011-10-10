@@ -1,6 +1,6 @@
 ;;; inf-ruby-bond.el --- Bond autocompletion support for inf-ruby
 
-;; Copyright (C) 2010 Kyle Hargraves
+;; Copyright (C) 2010-2011 Kyle Hargraves
 
 ;; Authors: Kyle Hargraves <pd@krh.me>
 ;; URL: http://github.com/pd/inf-ruby-bond
@@ -73,6 +73,24 @@ Replaces inf-ruby-completions."
     (set-process-filter proc comint-filt)
     completions))
 
+(defun inf-ruby-bond-completion-at-point ()
+  (let* ((word (inf-ruby-bond--ruby-word-at-point))
+         (line (thing-at-point 'line))
+         (completions (inf-ruby-bond-completions word line)))
+    (case (length completions)
+      (0 nil)
+      (1 (car completions))
+      (t (completing-read "possible completions: "
+                          completions nil 'confirm-only word)))))
+
+;;;###autoload
+(defun inf-ruby-bond-complete (&optional command)
+  (interactive (list (inf-ruby-bond-completion-at-point)))
+  (when command
+    (let ((wbounds (inf-ruby-bond--bounds-of-ruby-word-at-point)))
+      (kill-region (car wbounds) (cadr wbounds))
+      (insert command))))
+
 ;;;###autoload
 (defun inf-ruby-bond-complete-or-tab (&optional command)
   "Either complete the ruby code at point or call
@@ -81,23 +99,14 @@ on Bond completion having been loaded and started, typically
 from irbrc:
     require 'bond'
     Bond.start"
-  (interactive (list (let* ((word (inf-ruby-bond--ruby-word-at-point))
-                            (line (thing-at-point 'line))
-                            (completions (inf-ruby-bond-completions word line)))
-                       (case (length completions)
-                         (0 nil)
-                         (1 (car completions))
-                         (t (completing-read "possible completions: "
-                                             completions nil 'confirm-only word))))))
+  (interactive (list (inf-ruby-bond-completion-at-point)))
   (if (not command)
       (call-interactively 'indent-for-tab-command)
-    (let ((wbounds (inf-ruby-bond--bounds-of-ruby-word-at-point)))
-      (kill-region (car wbounds) (cadr wbounds)))
-    (insert command)))
+    (inf-ruby-complete command)))
 
 ;;;###autoload
 (eval-after-load 'inf-ruby
-  '(define-key inf-ruby-mode-map (kbd "TAB") 'inf-ruby-bond-complete-or-tab))
+  '(define-key inf-ruby-mode-map (kbd "TAB") 'inf-ruby-bond-complete))
 
 (provide 'inf-ruby-bond)
 ;;; inf-ruby-bond.el ends here
